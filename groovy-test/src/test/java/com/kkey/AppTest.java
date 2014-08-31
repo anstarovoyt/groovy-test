@@ -7,8 +7,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Unit test for simple App.
  */
-public class AppTest
-{
+public class AppTest {
     public static String SCRIPT = "class A{\n" +
             "static arr = new String[100000]; \n" +
             "def do1() { %s }\n" +
@@ -21,14 +20,6 @@ public class AppTest
             "class G {} \n" +
             "class H {} \n" +
             "class H1 {static arr = new String[100000];} \n" +
-            "class H2 {static arr = new String[100000];} \n" +
-            "class H3 {static arr = new String[100000];} \n" +
-            "class H4 {static arr = new String[100000];} \n" +
-            "class H5 {static arr = new String[100000];} \n" +
-            "class H6 {static arr = new String[100000];} \n" +
-            "class H7 {static arr = new String[100000];} \n" +
-            "class H8 {static arr = new String[100000];} \n" +
-            "class H9 {static arr = new String[100000];} \n" +
             "new C() \n" +
             "new D() \n" +
             "new E() \n" +
@@ -36,15 +27,6 @@ public class AppTest
             "new G() \n" +
             "new H() \n" +
             "new H1() \n" +
-            "new H1() \n" +
-            "new H2() \n" +
-            "new H3() \n" +
-            "new H4() \n" +
-            "new H5() \n" +
-            "new H6() \n" +
-            "new H7() \n" +
-            "new H8() \n" +
-            "new H9() \n" +
             "return new A().do1()\n";
 
 
@@ -70,6 +52,23 @@ public class AppTest
         for (int i = 0; i < 100000000; i++) {
 
             result += scriptExecutorJSR223.<Integer>executeScript(String.format(SCRIPT, "1"));
+        }
+
+        assertEquals(100000000, result);
+    }
+
+    /**
+     * Here we generate a new unique String every time
+     */
+    @Test
+    public void testWithConcatNewString() {
+        ScriptExecutorJSR223 scriptExecutorJSR223 = new ScriptExecutorJSR223();
+
+        int result = 0;
+        for (int i = 0; i < 100000000; i++) {
+
+            String header = "/* " + i + " */\n";
+            result += scriptExecutorJSR223.<Integer>executeScript(header + String.format(SCRIPT, "1"));
         }
 
         assertEquals(100000000, result);
