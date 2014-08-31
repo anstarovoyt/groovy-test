@@ -6,7 +6,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.util.logging.Logger;
 
-public class ScriptExecutorJSR223 {
+public class ScriptExecutorJSR223 implements ScriptExecutor {
 
     public static final Logger LOGGER = Logger.getLogger(ScriptExecutorJSR223.class.getName());
 

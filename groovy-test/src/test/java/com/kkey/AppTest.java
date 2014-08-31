@@ -2,14 +2,17 @@ package com.kkey;
 
 import org.junit.Test;
 
+import javax.script.*;
+
 import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test for simple App.
  */
 public class AppTest {
+    public static final int COUNTER = 10000;
     public static String SCRIPT = "class A{\n" +
-            "static arr = new String[100000]; \n" +
+            "static arr = new String[1000]; \n" +
             "def do1() { %s }\n" +
             "}\n" +
             "\n" +
@@ -19,7 +22,7 @@ public class AppTest {
             "class F {} \n" +
             "class G {} \n" +
             "class H {} \n" +
-            "class H1 {static arr = new String[100000];} \n" +
+            "class H1 {static arr = new String[1000];} \n" +
             "new C() \n" +
             "new D() \n" +
             "new E() \n" +
@@ -32,29 +35,29 @@ public class AppTest {
 
     @Test
     public void testSimple() {
-        ScriptExecutorJSR223 scriptExecutorJSR223 = new ScriptExecutorJSR223();
+        ScriptExecutor scriptExecutorJSR223 = getScriptExecutor();
 
         String script = String.format(SCRIPT, "1");
         int result = 0;
-        for (int i = 0; i < 100000000; i++) {
+        for (int i = 0; i < COUNTER; i++) {
 
             result += scriptExecutorJSR223.<Integer>executeScript(script);
         }
 
-        assertEquals(100000000, result);
+        assertEquals(COUNTER, result);
     }
 
     @Test
     public void testWithConcat() {
-        ScriptExecutorJSR223 scriptExecutorJSR223 = new ScriptExecutorJSR223();
+        ScriptExecutor scriptExecutorJSR223 = getScriptExecutor();
 
         int result = 0;
-        for (int i = 0; i < 100000000; i++) {
+        for (int i = 0; i < COUNTER; i++) {
 
             result += scriptExecutorJSR223.<Integer>executeScript(String.format(SCRIPT, "1"));
         }
 
-        assertEquals(100000000, result);
+        assertEquals(COUNTER, result);
     }
 
     /**
@@ -62,15 +65,35 @@ public class AppTest {
      */
     @Test
     public void testWithConcatNewString() {
-        ScriptExecutorJSR223 scriptExecutorJSR223 = new ScriptExecutorJSR223();
+        ScriptExecutor scriptExecutorJSR223 = getScriptExecutor();
 
         int result = 0;
-        for (int i = 0; i < 100000000; i++) {
-
+        for (int i = 0; i < COUNTER; i++) {
             String header = "/* " + i + " */\n";
             result += scriptExecutorJSR223.<Integer>executeScript(header + String.format(SCRIPT, "1"));
         }
 
-        assertEquals(100000000, result);
+        assertEquals(COUNTER, result);
+    }
+
+    @Test
+    public void testCompileOnly() throws ScriptException {
+        ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+        ScriptEngine groovy = scriptEngineManager.getEngineByName("groovy");
+
+        String script = String.format(SCRIPT, "1");
+        for (int i = 0; i < COUNTER; i++) {
+            String header = "/* " + i + " */\n";
+            CompiledScript compile = ((Compilable) groovy).compile(header + script);
+            if (compile.toString().equals("aaa")){
+                throw new RuntimeException("Cannot be");
+            }
+        }
+    }
+
+    private ScriptExecutor getScriptExecutor() {
+//        return new ScriptExecutorJSR223();
+        return new ScriptExecutorDirect();
+//        return new ScriptCreateEveryTime();
     }
 }
