@@ -11,6 +11,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class AppTest {
     public static final int COUNTER = 10000;
+
+
     public static String SCRIPT = "class A{\n" +
             "static arr = new String[1000]; \n" +
             "def do1() { %s }\n" +
@@ -32,6 +34,29 @@ public class AppTest {
             "new H1() \n" +
             "return new A().do1()\n";
 
+
+    public static String SCRIPT_2 = "" +
+            "import com.kkey.AccessTo\n" +
+            "class A{\n" +
+            "static arr = new String[1000]; \n" +
+            "def do1() { %s }\n" +
+            "}\n" +
+            "\n" +
+            "class C {} \n" +
+            "class D {} \n" +
+            "class E {} \n" +
+            "class F {} \n" +
+            "class G {} \n" +
+            "class H {} \n" +
+            "class H1 {static arr = new String[1000];} \n" +
+            "new C() \n" +
+            "new D() \n" +
+            "new E() \n" +
+            "new F() \n" +
+            "new G() \n" +
+            "new H() \n" +
+            "new H1() \n" +
+            "return new A().do1() + new AccessTo().get()\n";
 
     @Test
     public void testSimple() {
@@ -90,6 +115,23 @@ public class AppTest {
             }
         }
     }
+
+    @Test
+    public void testCompileOnly_for2() throws ScriptException {
+        ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+        ScriptEngine groovy = scriptEngineManager.getEngineByName("groovy");
+
+        String script = String.format(SCRIPT_2, "1");
+        for (int i = 0; i < COUNTER; i++) {
+            String header = "/* " + i + " */\n";
+            CompiledScript compile = ((Compilable) groovy).compile(header + script);
+            if (compile.toString().equals("aaa")){
+                throw new RuntimeException("Cannot be");
+            }
+        }
+    }
+
+
 
     private ScriptExecutor getScriptExecutor() {
 //        return new ScriptExecutorJSR223();
